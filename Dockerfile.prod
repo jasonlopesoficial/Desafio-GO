@@ -1,0 +1,19 @@
+# Baixa a imagem do golang alpine e renomeia para build
+FROM golang:1.17.2-alpine3.14 as build
+
+# Seta o diretório de trabalho
+WORKDIR /usr/app
+
+# Copia o arquivo para fazer um builder e diminuir o tamanho final da imagem.
+COPY . .
+
+# Roda os comandos para iniciar o GO e realizar o build.
+RUN go mod init main && go build
+
+# Gera uma nova imagem com o tamanho reduzido
+FROM scratch
+WORKDIR /exec
+COPY --from=build /usr/app/main .
+
+# Executa o main do programa GO.
+CMD ["/exec/main"]
